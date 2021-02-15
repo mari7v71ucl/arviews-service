@@ -142,23 +142,6 @@ namespace arviews_service.Tests
             Assert.IsType<BadRequestObjectResult>(badResponse.Result);
         }
 
-
-        [Fact]
-        public void Test_UpdateWorkspace()
-        {
-            // Act
-            var originalWorkspace = _service.GetByWorkspaceId("workspace001");
-
-            // Assert
-            Assert.NotNull(originalWorkspace);
-            Assert.NotEqual(5, originalWorkspace.ArViews.Count());
-
-            // Act
-
-        }
-
-        // Change workspace permission
-
         [Theory]
         [InlineData("workspace001", "nonexistent")]
         public void Test_DeleteWorkspace(string validWId, string invalidWId)
