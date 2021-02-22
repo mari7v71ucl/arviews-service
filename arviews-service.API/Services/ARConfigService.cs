@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using arviews_service.API.Models;
 using MongoDB.Driver;
 
@@ -19,7 +17,7 @@ namespace arviews_service.API.Services
             _arConfigs = database.GetCollection<ARConfig>(settings.ArConfigsCollectionName);
         }
 
-        public List<ARConfig> GetByViewId(string viewId, int count)
+        public List<ARConfig> GetByViewId(string viewId, int count = 0)
         {
             List<ARConfig> configs = new List<ARConfig>();
 
@@ -42,6 +40,11 @@ namespace arviews_service.API.Services
             config.CreatedTimestamp = DateTime.Now.ToUniversalTime();
             _arConfigs.InsertOneAsync(config);
             return config;
+        }
+
+        public void DeleteByViewId(string wId)
+        {
+            _arConfigs.DeleteMany(c => c.ViewId == wId);
         }
     }
 }

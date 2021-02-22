@@ -1,7 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using arviews_service.API.Models;
 
 namespace arviews_service.API.Services
@@ -27,9 +25,9 @@ namespace arviews_service.API.Services
                 WorkspaceId = "workspace002",
                 ArViews = new List<string>()
                 {
-                    "view001",
-                    "view002",
-                    "view003"
+                    "view004",
+                    "view005",
+                    "view006"
                 }
             },
             new Workspace()
@@ -38,10 +36,20 @@ namespace arviews_service.API.Services
                 WorkspaceId = "workspace003",
                 ArViews = new List<string>()
                 {
-                    "view001",
-                    "view002",
-                    "view003"
+                    "view007",
+                    "view008",
+                    "view009"
                 }
+            },
+            new Workspace()
+            {
+                Id = "pcBwQhs75TP",
+                WorkspaceId = "workspace004",
+                ArViews = new List<string>()
+                {
+                    "forbiddenviewid"
+                },
+                IsClientAccessForbidden = true
             }
         };
 
@@ -49,6 +57,7 @@ namespace arviews_service.API.Services
         public List<Workspace> Get() => workspaces;
         
         public Workspace GetByWorkspaceId(string wId) => workspaces.FirstOrDefault(w => w.WorkspaceId == wId);
+        public Workspace GetById(string id) => workspaces.FirstOrDefault(w => w.Id == id);
 
         public Workspace Create(Workspace w)
         {
@@ -60,6 +69,17 @@ namespace arviews_service.API.Services
         {
             var itemToRemove = workspaces.FirstOrDefault(i => i.Id == id);
             workspaces.Remove(itemToRemove);
+        }
+
+        public bool AccessAllowed(string viewId)
+        {
+            var workspace = workspaces.FirstOrDefault(w => w.ArViews.Contains(viewId));
+            if (workspace == null || !workspace.IsClientAccessForbidden)
+            {
+                return true;
+            }
+
+            return false;
         }
     }
 }

@@ -1,7 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using arviews_service.API.Dtos;
 using arviews_service.API.Models;
@@ -16,17 +13,25 @@ namespace arviews_service.API.Controllers
     public class ARConfigsController : ControllerBase
     {
         private readonly IARConfigService _configService;
+        private readonly IWorkspaceService _workspaceService;
         private readonly IMapper _mapper;
 
-        public ARConfigsController(IARConfigService service, IMapper mapper)
+        public ARConfigsController(IARConfigService cService, IWorkspaceService wService, IMapper mapper)
         {
-            _configService = service;
+            _configService = cService;
+            _workspaceService = wService;
             _mapper = mapper;
         }
 
         [HttpGet("{viewId}/{limit:int}")]
         public async Task<IActionResult> Get(string viewId, int limit = 0)
         {
+            bool accessAllowed = _workspaceService.AccessAllowed(viewId);
+            if (!accessAllowed)
+            {
+                return StatusCode(403);
+            }
+
             var configs = _configService.GetByViewId(viewId, limit);
 
             if (configs == null || configs.Count == 0)
@@ -45,6 +50,12 @@ namespace arviews_service.API.Controllers
         [HttpPost]
         public async Task<IActionResult> Post(ARConfig config)
         {
+            bool accessAllowed = _workspaceService.AccessAllowed(config.ViewId);
+            if (!accessAllowed)
+            {
+                return StatusCode(403);
+            }
+
             _configService.Create(config);
 
             if (!ModelState.IsValid)
@@ -52,7 +63,7 @@ namespace arviews_service.API.Controllers
                 return BadRequest(ModelState);
             }
 
-            return CreatedAtAction("Get", new {ViewId = config.ViewId}, _mapper.Map<ARConfigDto>(config));
+            return Ok(_mapper.Map<ARConfigDto>(config));
         }
     }
 }

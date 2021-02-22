@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using arviews_service.API.Controllers;
 using arviews_service.API.Dtos;
 using arviews_service.API.Infrastructure;
@@ -16,17 +12,19 @@ namespace arviews_service.Tests
 {
     public class ARConfigsControllerTests
     {
-        IARConfigService _service;
+        IARConfigService _configService;
+        IWorkspaceService _workspaceService;
         ARConfigsController _controller;
 
         public ARConfigsControllerTests()
         {
-            _service = new MockARConfigService();
+            _configService = new MockARConfigService();
+            _workspaceService = new MockWorkspaceService();
 
             IMapper _mapper = new MapperConfiguration(c =>
                 c.AddProfile<MappingProfile>()).CreateMapper();
 
-            _controller = new ARConfigsController(_service, (_mapper));
+            _controller = new ARConfigsController(_configService, _workspaceService, (_mapper));
         }
 
         [Theory]
@@ -59,6 +57,18 @@ namespace arviews_service.Tests
             Assert.IsType<NotFoundObjectResult>(notFoundResult.Result);
         }
 
+        [Theory]
+        [InlineData("forbiddenviewid")]
+        public void Test_Get_IdAccessForbidden_ReturnsForbidden(string invalidViewId)
+        {
+            // Act 
+            var forbidenReturnCode = _controller.Get(invalidViewId);
+
+            // Assert
+            Assert.IsType<StatusCodeResult>(forbidenReturnCode.Result);
+            Assert.Equal((int)((StatusCodeResult)forbidenReturnCode.Result).StatusCode, 403);
+        }
+
         [Fact]
         public void Test_AddARConfig_Valid()
         {
@@ -81,15 +91,39 @@ namespace arviews_service.Tests
             var createdResponse = _controller.Post(completeConfig);
 
             // Assert
-            Assert.IsType<CreatedAtActionResult>(createdResponse.Result);
+            Assert.IsType<OkObjectResult>(createdResponse.Result);
 
-            var item = createdResponse.Result as CreatedAtActionResult;
+            var item = createdResponse.Result as OkObjectResult;
             Assert.IsType<ARConfigDto>(item.Value);
 
             var configItem = item.Value as ARConfigDto;
             Assert.Equal(completeConfig.Properties.Count, configItem.Properties.Count);
             Assert.Equal(completeConfig.Properties["resolution"], configItem.Properties["resolution"]);
             Assert.NotNull(configItem.CreatedTimestamp);
+        }
+
+        [Theory]
+        [InlineData("forbiddenviewid")]
+        public void Test_Post_IdAccessForbidden_ReturnsForbidden(string invalidViewId)
+        {
+            // Arrange
+            var forbiddenAccessConfig = new ARConfig()
+            {
+                ViewId = "forbiddenviewid",
+                Properties = new Dictionary<string, string>()
+                {
+                    { "height", "0.1" },
+                    { "width", "0.1" },
+                    { "verticalOffset", "0" },
+                }
+            };
+
+            // Act 
+            var forbidenReturnCode = _controller.Post(forbiddenAccessConfig);
+
+            // Assert
+            Assert.IsType<StatusCodeResult>(forbidenReturnCode.Result);
+            Assert.Equal(403, ((StatusCodeResult)forbidenReturnCode.Result).StatusCode);
         }
 
         [Fact]
@@ -113,7 +147,5 @@ namespace arviews_service.Tests
             // Assert
             Assert.IsType<BadRequestObjectResult>(badResponse.Result);
         }
-
-
     }
 }

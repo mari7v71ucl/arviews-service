@@ -1,20 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Threading.Tasks;
 using arviews_service.API.Models;
 
 namespace arviews_service.API.Services
 {
     public class MockARConfigService : IARConfigService
     {
-        public List<ARConfig> GetByViewId(string viewId, int count)
-        {
-            var configs = new List<ARConfig>();
+        public List<ARConfig> configs;
 
-            if (viewId == "validviewid")
-            {
-                configs = new List<ARConfig>()
+        public MockARConfigService()
+        {
+            configs = new List<ARConfig>()
                 {
                     new ARConfig()
                     {
@@ -43,18 +40,49 @@ namespace arviews_service.API.Services
                             {"horizontalOffset", "0.16"},
                             {"perpendicularOffset", "-0.2"}
                         }
+                    },
+                    new ARConfig()
+                    {
+                        Id = "375df77bcf86cd7994750724",
+                        ViewId = "forbiddenviewid",
+                        CreatedTimestamp = DateTime.Now - TimeSpan.FromMinutes(2),
+                        Properties = new Dictionary<string, string>()
+                        {
+                            {"height", "0.1"},
+                            {"width", "0.1"},
+                            {"verticalOffset", "0"},
+                            {"horizontalOffset", "0.2"},
+                            {"perpendicularOffset", "0"}
+                        }
                     }
                 };
+        }
+
+        public List<ARConfig> GetByViewId(string viewId, int count)
+        {
+            if (count == 0)
+            {
+                return configs.Where(c => c.ViewId == viewId).ToList();
+            }
+            else if (count > 0)
+            {
+               return configs.Where(c => c.ViewId == viewId).Take(count).ToList();
             }
 
-            return configs;
+            return new List<ARConfig>();
         }
 
         public ARConfig Create(ARConfig config)
         {
+            config.Id = "375df77bcf86cj49564750724";
             config.CreatedTimestamp = DateTime.Now.ToUniversalTime();
 
             return config;
+        }
+
+        public void DeleteByViewId(string wId)
+        {
+            configs.RemoveAll(x => x.ViewId == wId);
         }
     }
 }

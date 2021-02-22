@@ -1,8 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using arviews_service.API.Models;
+using MongoDB.Bson.IO;
 using MongoDB.Driver;
 
 namespace arviews_service.API.Services
@@ -23,6 +21,9 @@ namespace arviews_service.API.Services
         public List<Workspace> Get() =>
             _workspaces.Find(w => true).ToList();
 
+        public Workspace GetById(string id) =>
+            _workspaces.Find<Workspace>(w => w.Id == id).FirstOrDefault();
+
         public Workspace GetByWorkspaceId(string id) =>
             _workspaces.Find<Workspace>(w => w.WorkspaceId == id).FirstOrDefault();
 
@@ -34,5 +35,16 @@ namespace arviews_service.API.Services
 
         public void Remove(string id) =>
             _workspaces.DeleteOne(w => w.Id == id);
+
+        public bool AccessAllowed(string viewId)
+        {
+            var workspace = _workspaces.Find<Workspace>(w => w.ArViews.Contains(viewId)).FirstOrDefault();
+            if (workspace == null || !workspace.IsClientAccessForbidden)
+            {
+                return true;
+            }
+                
+            return false;
+        }
     }
 }

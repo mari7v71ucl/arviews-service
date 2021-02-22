@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace arviews_service.API.Models
+﻿namespace arviews_service.API.Models
 {
     public class ArViewsServiceDatabaseSettings : IArViewsServiceDatabaseSettings
     {

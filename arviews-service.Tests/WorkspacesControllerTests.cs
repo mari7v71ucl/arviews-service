@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection.Metadata.Ecma335;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using arviews_service.API.Controllers;
 using arviews_service.API.Dtos;
 using arviews_service.API.Infrastructure;
@@ -11,7 +6,6 @@ using arviews_service.API.Models;
 using arviews_service.API.Services;
 using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using MongoDB.Bson.Serialization.IdGenerators;
 using Xunit;
 
 namespace arviews_service.Tests
@@ -43,7 +37,7 @@ namespace arviews_service.Tests
             Assert.IsType<List<WorkspaceDto>>(item.Value);
 
             var workspaces = item.Value as List<WorkspaceDto>;
-            Assert.Equal(3, workspaces.Count);
+            Assert.Equal(4, workspaces.Count);
             Assert.Equal("workspace003", workspaces[2].WorkspaceId);
         }
 
@@ -60,9 +54,9 @@ namespace arviews_service.Tests
             Assert.IsType<List<Workspace>>(item.Value);
 
             var workspaces = item.Value as List<Workspace>;
-            Assert.Equal(3, workspaces.Count);
+            Assert.Equal(4, workspaces.Count);
             Assert.Equal("workspace003", workspaces[2].WorkspaceId);
-            Assert.Equal("view003", workspaces[2].ArViews[2]);
+            Assert.Equal("view009", workspaces[2].ArViews[2]);
         }
 
         [Theory]
@@ -103,7 +97,7 @@ namespace arviews_service.Tests
                 WorkspaceId = "workspace999",
                 ArViews = new List<string>()
                 {
-                    "view001", "view002", "view003"
+                    "view111", "view112", "view113"
                 }
             };
 
@@ -119,7 +113,7 @@ namespace arviews_service.Tests
             var workspaceItem = item.Value as Workspace;
             Assert.Equal("workspace999", workspaceItem.WorkspaceId);
             Assert.Equal(3, workspaceItem.ArViews.Count);
-            Assert.Equal("view003", workspaceItem.ArViews[2]);
+            Assert.Equal("view113", workspaceItem.ArViews[2]);
         }
 
         [Fact]
@@ -130,7 +124,7 @@ namespace arviews_service.Tests
             {
                 ArViews = new List<string>()
                 {
-                    "view001", "view002", "view003"
+                    "view111", "view112", "view113"
                 }
             };
 
@@ -151,14 +145,14 @@ namespace arviews_service.Tests
 
             // Assert
             Assert.IsType<NotFoundResult>(notFoundResult.Result);
-            Assert.Equal(3, _service.Get().Count);
+            Assert.Equal(4, _service.Get().Count);
 
             // Act
             var okResult = _controller.DeleteByWId(validWId);
 
             // Assert
             Assert.IsType<OkResult>(okResult.Result);
-            Assert.Equal(2, _service.Get().Count);
+            Assert.Equal(3, _service.Get().Count);
         }
     }
 }
